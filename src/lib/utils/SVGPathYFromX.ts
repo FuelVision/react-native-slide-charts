@@ -47,5 +47,5 @@ export default function SVGPathYFromX(path: any, x: number): number {
     }
     target = (start + end) / 2
   }
-  return path.getPointAtLength(0)
+  return path.getPointAtLength(0).y
 }
