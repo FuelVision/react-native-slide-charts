@@ -10,6 +10,7 @@ type SharedChartProps = {
   scaleX: ScaleTime<number, number> | ScaleLinear<number, number>
   scaleY: ScaleLinear<number, number>
   yRange: [number, number]
+  xRange: [number, number]
   width: number
   axisWidth: number
   axisHeight: number
@@ -35,7 +36,6 @@ export type BarChartProps = SharedChartProps & {
 }
 
 export type AreaChartProps = SharedChartProps & {
-  xRange: [number, number]
   line: string
   chartLineColor: string
   chartLineWidth: number

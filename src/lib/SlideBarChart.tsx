@@ -676,6 +676,7 @@ class SlideBarChart extends Component<SlideBarChartComponentProps, State> {
           height={height}
           scaleY={this.scaleY}
           yRange={yRangeCalculated}
+          xRange={xRangeCalculated}
           scaleX={this.scaleX}
           axisWidth={axisWidth}
           axisHeight={axisHeight}

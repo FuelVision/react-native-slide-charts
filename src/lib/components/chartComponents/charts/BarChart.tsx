@@ -178,6 +178,7 @@ class BarChart extends Component<BarChartProps, State> {
       paddingRight,
       paddingTop,
       paddingBottom,
+      xRange,
     } = this.props
 
     const { data } = animated ? this.state : this.props
@@ -237,6 +238,7 @@ class BarChart extends Component<BarChartProps, State> {
           scaleX={scaleX}
           scaleY={scaleY}
           yRange={yRange}
+          xRange={xRange}
           width={width}
           height={height}
           axisWidth={axisWidth}
@@ -252,6 +254,7 @@ class BarChart extends Component<BarChartProps, State> {
           scaleX={scaleX}
           scaleY={scaleY}
           yRange={yRange}
+          xRange={xRange}
           width={width}
           height={height}
           axisWidth={axisWidth}
