@@ -7,6 +7,7 @@ type AxisProps = {
   scaleX: ScaleTime<number, number> | ScaleLinear<number, number>
   scaleY: ScaleLinear<number, number>
   yRange: [number, number]
+  xRange: [number, number]
   width: number
   height: number
   axisWidth: number

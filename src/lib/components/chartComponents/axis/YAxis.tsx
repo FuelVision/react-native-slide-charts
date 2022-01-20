@@ -1,15 +1,27 @@
 import React, { Component } from 'react'
-import { Line, Text, TSpan, AlignmentBaseline, TextAnchor } from 'react-native-svg'
 import {
-  verticalLineGradient, horizontalLineGradient, axisLabelColor,
-  axisMarkerColor, averageLineDefaultColor, averageMarkerColor
+  Line,
+  Text,
+  TSpan,
+  AlignmentBaseline,
+  TextAnchor,
+} from 'react-native-svg'
+import {
+  verticalLineGradient,
+  horizontalLineGradient,
+  axisLabelColor,
+  axisMarkerColor,
+  averageLineDefaultColor,
+  averageMarkerColor,
 } from './utils/colors'
 import {
-  YAxisComponentProps, YAxisDefaultProps, YAxisMarkerProps, YAxisLabelAlignment
+  YAxisComponentProps,
+  YAxisDefaultProps,
+  YAxisMarkerProps,
+  YAxisLabelAlignment,
 } from './utils/types'
 
 class YAxis extends Component<YAxisComponentProps> {
-
   static defaultProps: YAxisDefaultProps = {
     renderVerticalLineGradient: verticalLineGradient,
     verticalLineWidth: 1,
@@ -39,33 +51,31 @@ class YAxis extends Component<YAxisComponentProps> {
     labelStyle,
     label,
     textAnchor,
-    rotated
+    rotated,
   }: YAxisMarkerProps) => (
-      <Text
-        x={x}
-        y={y}
-        fill={fill}
-        alignmentBaseline={alignmentBaseline}
-        textAnchor={textAnchor || 'end'}
-        key={key}
-        transform={rotated ? `rotate(270, ${x}, ${y})` : undefined}
-      >
-        <TSpan {...labelStyle}>
-          {label}
-        </TSpan>
-      </Text>
-    )
+    <Text
+      x={x}
+      y={y}
+      fill={fill}
+      alignmentBaseline={alignmentBaseline}
+      textAnchor={textAnchor || 'end'}
+      key={key}
+      transform={rotated ? `rotate(270, ${x}, ${y})` : undefined}
+    >
+      <TSpan {...labelStyle}>{label}</TSpan>
+    </Text>
+  )
 
   // Only update axis if the data or width changes
   shouldComponentUpdate(nextProps: YAxisComponentProps) {
     const { data, width, height, axisHeight, axisWidth } = this.props
     if (
-      data.length !== nextProps.data.length
-      || JSON.stringify(data) !== JSON.stringify(nextProps.data)
-      || width !== nextProps.width
-      || height !== nextProps.height
-      || axisHeight !== nextProps.axisHeight
-      || axisWidth !== nextProps.axisWidth
+      data.length !== nextProps.data.length ||
+      JSON.stringify(data) !== JSON.stringify(nextProps.data) ||
+      width !== nextProps.width ||
+      height !== nextProps.height ||
+      axisHeight !== nextProps.axisHeight ||
+      axisWidth !== nextProps.axisWidth
     ) {
       return true
     }
@@ -78,7 +88,6 @@ class YAxis extends Component<YAxisComponentProps> {
       scaleX,
       scaleY,
       numberOfTicks,
-      width,
       axisWidth,
       fullBaseLine,
       interval,
@@ -93,6 +102,7 @@ class YAxis extends Component<YAxisComponentProps> {
       horizontalLineWidth,
       horizontalLineColor,
       renderHorizontalLineGradient,
+      xRange,
       yRange,
       showAverageLine,
       markAverageLine,
@@ -107,31 +117,40 @@ class YAxis extends Component<YAxisComponentProps> {
       labelLeftOffset,
       hideMarkers,
       paddingLeft,
-      paddingRight,
       paddingTop,
     } = this.props
 
     const lines: JSX.Element[] = []
     const axisMarkers: JSX.Element[] = []
     const gradients: Array<JSX.Element | undefined | null> = []
-    const stopX = data.length > 1 ? scaleX(data[data.length - 1].x) : width - paddingRight
-    const startX = data.length > 1 ? scaleX(data[0].x) : axisWidth + paddingLeft
+    const stopX = scaleX(xRange[1])
+    const startX = scaleX(xRange[0])
 
-    const tickInterval = interval != null ? interval :
-      (Math.abs(yRange[0] - yRange[1]) / ((numberOfTicks ?? 0) + 1))
+    const tickInterval =
+      interval != null
+        ? interval
+        : Math.abs(yRange[0] - yRange[1]) / ((numberOfTicks ?? 0) + 1)
     for (let i = 0; i <= (numberOfTicks ?? 0); i++) {
-      const y = scaleY(yRange[0] + (i * tickInterval))
+      const y = scaleY(yRange[0] + i * tickInterval)
 
       if (y >= paddingTop) {
         // Create the horizontal lines that designate the yAxis scale
         if (i !== 0 || showBaseLine) {
-          gradients.push(renderHorizontalLineGradient({ id: `gradientHorizontalLine-${i}`, count: i }))
+          gradients.push(
+            renderHorizontalLineGradient({
+              id: `gradientHorizontalLine-${i}`,
+              count: i,
+            })
+          )
           lines.push(
             <Line
-              x1={(i === 0 && fullBaseLine) ? paddingLeft : startX}
-              y1={`${scaleY(yRange[0] + (i * tickInterval))}`}
-              x2={stopX} y2={`${scaleY(yRange[0] + (i * tickInterval))}`}
-              stroke={horizontalLineColor || `url(#gradientHorizontalLine-${i})`}
+              x1={i === 0 && fullBaseLine ? paddingLeft : startX}
+              y1={`${scaleY(yRange[0] + i * tickInterval)}`}
+              x2={stopX}
+              y2={`${scaleY(yRange[0] + i * tickInterval)}`}
+              stroke={
+                horizontalLineColor || `url(#gradientHorizontalLine-${i})`
+              }
               strokeWidth={horizontalLineWidth}
               key={`horizontalLine-${i}`}
             />
@@ -140,29 +159,36 @@ class YAxis extends Component<YAxisComponentProps> {
 
         // Add labels to the yAxis scale
         if ((i !== 0 || markFirstLine) && axisWidth > 0 && !hideMarkers) {
-          axisMarkers.push(this.addAxisMarker({
-            x: startX - markerChartOffset,
-            y: ((i === 0 && markFirstLine && fullBaseLine) ||
-              (i === 0 && markFirstLine && axisHeight === 0)) ?
-              scaleY(yRange[0] + (i * tickInterval)) - 2 :
-              scaleY(yRange[0] + (i * tickInterval)),
-            fill: axisMarkerStyle.color || axisMarkerColor,
-            alignmentBaseline: ((i === 0 && markFirstLine && fullBaseLine) ||
-              (i === 0 && markFirstLine && axisHeight === 0)) ?
-              'baseline' :
-              'middle',
-            key: `${i}-text`,
-            labelStyle: axisMarkerStyle,
-            label: yRange[0] + (i * tickInterval)
-          }))
+          axisMarkers.push(
+            this.addAxisMarker({
+              x: startX - markerChartOffset,
+              y:
+                (i === 0 && markFirstLine && fullBaseLine) ||
+                (i === 0 && markFirstLine && axisHeight === 0)
+                  ? scaleY(yRange[0] + i * tickInterval) - 2
+                  : scaleY(yRange[0] + i * tickInterval),
+              fill: axisMarkerStyle.color || axisMarkerColor,
+              alignmentBaseline:
+                (i === 0 && markFirstLine && fullBaseLine) ||
+                (i === 0 && markFirstLine && axisHeight === 0)
+                  ? 'baseline'
+                  : 'middle',
+              key: `${i}-text`,
+              labelStyle: axisMarkerStyle,
+              label: yRange[0] + i * tickInterval,
+            })
+          )
         }
       }
     }
 
     // Place label above yAxis scale designating the units if set
     if (axisLabel != null && axisWidth > 0) {
-      const tickInterval = interval != null ? interval :
-        numberOfTicks != null ? (Math.abs(yRange[0] - yRange[1]) / (numberOfTicks + 1))
+      const tickInterval =
+        interval != null
+          ? interval
+          : numberOfTicks != null
+          ? Math.abs(yRange[0] - yRange[1]) / (numberOfTicks + 1)
           : undefined
 
       /**
@@ -182,13 +208,14 @@ class YAxis extends Component<YAxisComponentProps> {
         if (tickInterval != null && numberOfTicks != null) {
           textAnchor = rotateAxisLabel ? 'middle' : 'end'
           alignmentBaseline = rotateAxisLabel ? 'baseline' : 'middle'
-          y = scaleY(yRange[0] + ((numberOfTicks + 1) * tickInterval))
+          y = scaleY(yRange[0] + (numberOfTicks + 1) * tickInterval)
         }
       } else if (axisLabelAlignment === YAxisLabelAlignment.bottom) {
         alignmentBaseline = 'baseline'
         y = fullBaseLine ? scaleY(yRange[0]) - 2 : scaleY(yRange[0])
         if (rotateAxisLabel) {
-          alignmentBaseline = (markFirstLine && !hideMarkers) ? 'hanging' : 'baseline'
+          alignmentBaseline =
+            markFirstLine && !hideMarkers ? 'hanging' : 'baseline'
           textAnchor = 'start'
         }
         if (markFirstLine && !hideMarkers) {
@@ -197,9 +224,12 @@ class YAxis extends Component<YAxisComponentProps> {
         }
       } else if (axisLabelAlignment === YAxisLabelAlignment.middle) {
         alignmentBaseline = 'middle'
-        y = (scaleY(yRange[0])) / 2 + paddingTop
+        y = scaleY(yRange[0]) / 2 + paddingTop
         if (rotateAxisLabel) {
-          alignmentBaseline = ((numberOfTicks && !hideMarkers) || markAverageLine) ? 'hanging' : 'baseline'
+          alignmentBaseline =
+            (numberOfTicks && !hideMarkers) || markAverageLine
+              ? 'hanging'
+              : 'baseline'
           textAnchor = 'middle'
         }
         if ((numberOfTicks && !hideMarkers) || markAverageLine) {
@@ -208,20 +238,21 @@ class YAxis extends Component<YAxisComponentProps> {
         }
       }
       if (y >= paddingTop) {
-        axisMarkers.push(this.addAxisMarker({
-          x,
-          y,
-          fill: axisLabelStyle.color || axisLabelColor,
-          alignmentBaseline,
-          key: 'verticalLabel',
-          labelStyle: axisLabelStyle,
-          label: axisLabel,
-          textAnchor,
-          rotated: rotateAxisLabel,
-        }))
+        axisMarkers.push(
+          this.addAxisMarker({
+            x,
+            y,
+            fill: axisLabelStyle.color || axisLabelColor,
+            alignmentBaseline,
+            key: 'verticalLabel',
+            labelStyle: axisLabelStyle,
+            label: axisLabel,
+            textAnchor,
+            rotated: rotateAxisLabel,
+          })
+        )
       }
     }
-
 
     // Create the vertical lines designating the start and end of the chart
     if (verticalLineWidth > 0) {
@@ -243,11 +274,13 @@ class YAxis extends Component<YAxisComponentProps> {
 
     // Draw the horizontal dashed average line
     if (showAverageLine) {
-      const startX = data.length > 1 ? scaleX(data[0].x) : axisWidth + paddingLeft
-      const stopX = data.length > 1 ? scaleX(data[data.length - 1].x) : width - paddingRight
-      const average = data.length > 0 ?
-        data.map(dataPoint => dataPoint.y).reduce((a, b) => a + b, 0) / data.length :
-        0
+      const startX = scaleX(xRange[0])
+      const stopX = scaleX(xRange[1])
+      const average =
+        data.length > 0
+          ? data.map(dataPoint => dataPoint.y).reduce((a, b) => a + b, 0) /
+            data.length
+          : 0
       lines.push(
         <Line
           x1={startX}
@@ -264,25 +297,25 @@ class YAxis extends Component<YAxisComponentProps> {
 
     // Add labels to the yAxis scale
     if (markAverageLine) {
-      const average = data.length > 0 ?
-        data.map(dataPoint => dataPoint.y).reduce((a, b) => a + b, 0) / data.length :
-        0
-      axisMarkers.push(this.addAxisMarker({
-        x: startX - markerChartOffset,
-        y: scaleY(average),
-        fill: axisAverageMarkerStyle.color || axisMarkerColor,
-        alignmentBaseline: 'middle',
-        key: `average-text`,
-        labelStyle: axisAverageMarkerStyle,
-        label: average.toFixed(averageMarkerDecimals)
-      }))
+      const average =
+        data.length > 0
+          ? data.map(dataPoint => dataPoint.y).reduce((a, b) => a + b, 0) /
+            data.length
+          : 0
+      axisMarkers.push(
+        this.addAxisMarker({
+          x: startX - markerChartOffset,
+          y: scaleY(average),
+          fill: axisAverageMarkerStyle.color || axisMarkerColor,
+          alignmentBaseline: 'middle',
+          key: `average-text`,
+          labelStyle: axisAverageMarkerStyle,
+          label: average.toFixed(averageMarkerDecimals),
+        })
+      )
     }
 
-    return (
-      <>
-        {gradients.concat(lines, axisMarkers).map(marker => marker)}
-      </>
-    )
+    return <>{gradients.concat(lines, axisMarkers).map(marker => marker)}</>
   }
 }
 

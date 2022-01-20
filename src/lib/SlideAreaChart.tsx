@@ -624,6 +624,7 @@ class SlideAreaChart extends Component<SlideAreaChartComponentProps, State> {
           line={startLine}
           scaleY={this.scaleY}
           yRange={yRangeCalculated}
+          xRange={xRangeCalculated}
           scaleX={this.scaleX}
           axisWidth={axisWidth}
           axisHeight={axisHeight}

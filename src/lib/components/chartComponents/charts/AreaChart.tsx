@@ -48,6 +48,7 @@ class AreaChart extends Component<AreaChartProps> {
       axisWidth,
       chartLineWidth,
       yRange,
+      xRange,
       renderFillGradient,
       fillColor,
       chartLineColor,
@@ -72,6 +73,7 @@ class AreaChart extends Component<AreaChartProps> {
           scaleX={scaleX}
           scaleY={scaleY}
           yRange={yRange}
+          xRange={xRange}
           width={width}
           height={height}
           axisWidth={axisWidth}
@@ -87,6 +89,7 @@ class AreaChart extends Component<AreaChartProps> {
           scaleX={scaleX}
           scaleY={scaleY}
           yRange={yRange}
+          xRange={xRange}
           width={width}
           height={height}
           axisHeight={axisHeight}
