@@ -218,10 +218,12 @@ class XAxis extends Component<XAxisComponentProps> {
     }
 
     const numberOfBars = data.length
-    const startX = scaleX(xRange[0])
-    const stopX = scaleX(xRange[1])
-    const chartWidth = stopX - startX
     const numberOfMarks = axisMarkerLabels.length
+    const alignLabelsWithDataPoints = data.length === axisMarkerLabels.length && data.length > 0
+    const startX = alignLabelsWithDataPoints ? scaleX(data[0].x) : scaleX(xRange[0])
+    const stopX = alignLabelsWithDataPoints ? scaleX(data[data.length - 1].x) : scaleX(xRange[1])
+
+    const chartWidth = stopX - startX
     const axisMarkers: JSX.Element[] = axisMarkerLabels.map((marker, i) => {
       let markerX = startX
       let labelAndAlignment: LabelAndAlignment = {
